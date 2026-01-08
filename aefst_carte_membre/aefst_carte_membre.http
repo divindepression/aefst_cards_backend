@@ -1,0 +1,6 @@
+@aefst_carte_membre_HostAddress = http://localhost:5179
+
+GET {{aefst_carte_membre_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
