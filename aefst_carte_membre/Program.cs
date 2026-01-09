@@ -1,4 +1,4 @@
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using System.Text;
 using aefst_carte_membre.DbContexts;
 using aefst_carte_membre.Identity;
@@ -12,15 +12,41 @@ using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ?? OBLIGATOIRE POUR RAILWAY
+// 🔥 OBLIGATOIRE POUR RAILWAY
 var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
 builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
 // ---------------------
 // DATABASE
 // ---------------------
+//builder.Services.AddDbContext<AppDbContext>(options =>
+//    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+{
+    var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
+
+    if (string.IsNullOrWhiteSpace(databaseUrl))
+    {
+        throw new Exception("DATABASE_URL is missing. App cannot start.");
+    }
+
+    var uri = new Uri(databaseUrl);
+    var userInfo = uri.UserInfo.Split(':');
+
+    var connectionString =
+        $"Host={uri.Host};" +
+        $"Port={uri.Port};" +
+        $"Database={uri.AbsolutePath.TrimStart('/')};" +
+        $"Username={userInfo[0]};" +
+        $"Password={userInfo[1]};" +
+        $"SSL Mode=Require;Trust Server Certificate=true";
+
+    options.UseNpgsql(connectionString);
+});
+
+
 
 // ---------------------
 // CONTROLLERS & OPENAPI
@@ -148,7 +174,7 @@ async Task SeedRolesAndAdminAsync(IServiceProvider services)
 }
 
 
-// Ex�cution du seed
+// Exécution du seed
 using (var scope = app.Services.CreateScope())
 {
     await SeedRolesAndAdminAsync(scope.ServiceProvider);
@@ -171,7 +197,7 @@ app.MapControllers();
 
     app.MapScalarApiReference(options =>
     {
-        options.Title = "AEFST � Carte Membre API";
+        options.Title = "AEFST – Carte Membre API";
         options.Theme = ScalarTheme.Moon;
     });
 //}
