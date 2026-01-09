@@ -162,7 +162,7 @@ namespace aefst_carte_membre.Migrations
                 name: "membres",
                 columns: table => new
                 {
-                    id = table.Column<Guid>(type: "uuid", nullable: false, defaultValueSql: "uuid_generate_v4()"),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
                     matricule = table.Column<string>(type: "text", nullable: false),
                     nom = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     prenom = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
@@ -176,11 +176,12 @@ namespace aefst_carte_membre.Migrations
                     date_creation = table.Column<DateTime>(type: "timestamp", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
                     date_expiration = table.Column<DateTime>(type: "date", nullable: false),
                     statut = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false, defaultValue: "ACTIF"),
+                    CartePdfUrl = table.Column<string>(type: "text", nullable: true),
                     user_id = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_membres", x => x.id);
+                    table.PrimaryKey("PK_membres", x => x.Id);
                     table.ForeignKey(
                         name: "FK_membres_AspNetUsers_user_id",
                         column: x => x.user_id,

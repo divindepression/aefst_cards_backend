@@ -12,8 +12,8 @@ using aefst_carte_membre.DbContexts;
 namespace aefst_carte_membre.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260109082347_Initial2")]
-    partial class Initial2
+    [Migration("20260109142341_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -29,9 +29,7 @@ namespace aefst_carte_membre.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id")
-                        .HasDefaultValueSql("uuid_generate_v4()");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("CartePdfUrl")
                         .HasColumnType("text");
