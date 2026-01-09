@@ -255,12 +255,15 @@ using (var scope = app.Services.CreateScope())
 // PIPELINE HTTP
 // ---------------------
 
-app.UseForwardedHeaders(new ForwardedHeadersOptions
-{
-    ForwardedHeaders = ForwardedHeaders.XForwardedProto
-});
+app.UseForwardedHeaders();
 
-app.UseHttpsRedirection();
+
+//app.UseForwardedHeaders(new ForwardedHeadersOptions
+//{
+//    ForwardedHeaders = ForwardedHeaders.XForwardedProto
+//});
+
+//app.UseHttpsRedirection();
 
 app.UseStaticFiles();
 
@@ -277,7 +280,7 @@ app.MapScalarApiReference(options =>
     {
         options.Title = "AEFST – Carte Membre API";
         options.Theme = ScalarTheme.Moon;
-        options.BaseServerUrl = "https://aefstcardsbackend-production.up.railway.app";
+        //options.BaseServerUrl = "https://aefstcardsbackend-production.up.railway.app";
     });
 //}
 
