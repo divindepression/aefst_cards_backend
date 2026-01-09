@@ -26,9 +26,9 @@ namespace aefst_carte_membre.DbContexts
 
 
                 //Id
-                entity.Property(e => e.Id)
-                      .HasColumnName("id")
-                      .HasDefaultValueSql("uuid_generate_v4()");
+                //entity.Property(e => e.Id)
+                //      .HasColumnName("id")
+                //      .HasDefaultValueSql("uuid_generate_v4()");
 
                 // Matricule (généré par trigger)
                 entity.Property(e => e.Matricule)

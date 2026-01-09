@@ -3,7 +3,7 @@ using aefst_carte_membre.Identity;
 
 public class Membre
 {
-    public Guid Id { get; set; }
+    public Guid Id { get; set; } = Guid.NewGuid();
 
     [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
     public string Matricule { get; set; } = null!;
