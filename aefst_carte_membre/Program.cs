@@ -5,6 +5,7 @@ using aefst_carte_membre.Identity;
 using aefst_carte_membre.Models;
 using aefst_carte_membre.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -247,7 +248,7 @@ using (var scope = app.Services.CreateScope())
 // ---------------------
 
 
-//app.UseHttpsRedirection();
+app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();
@@ -257,7 +258,13 @@ app.MapControllers();
 //{
     app.MapOpenApi();
 
-    app.MapScalarApiReference(options =>
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedProto
+});
+
+
+app.MapScalarApiReference(options =>
     {
         options.Title = "AEFST – Carte Membre API";
         options.Theme = ScalarTheme.Moon;
