@@ -15,7 +15,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // 🔥 OBLIGATOIRE POUR RAILWAY
 var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
-builder.WebHost.UseUrls($"https://0.0.0.0:{port}");
+builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
 // ---------------------
 // DATABASE
@@ -247,22 +247,23 @@ using (var scope = app.Services.CreateScope())
 // PIPELINE HTTP
 // ---------------------
 
-
-app.UseHttpsRedirection();
-app.UseStaticFiles();
-app.UseAuthentication();
-app.UseAuthorization();
-app.MapControllers();
-
-//if (app.Environment.IsDevelopment())
-//{
-    app.MapOpenApi();
-
 app.UseForwardedHeaders(new ForwardedHeadersOptions
 {
     ForwardedHeaders = ForwardedHeaders.XForwardedProto
 });
 
+app.UseHttpsRedirection();
+
+app.UseStaticFiles();
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapControllers();
+
+//if (app.Environment.IsDevelopment())
+//{
+    app.MapOpenApi();
 
 app.MapScalarApiReference(options =>
     {
