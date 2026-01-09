@@ -23,28 +23,36 @@ builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 //    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 
+//builder.Services.AddDbContext<AppDbContext>(options =>
+//{
+//    var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
+
+//    if (string.IsNullOrWhiteSpace(databaseUrl))
+//    {
+//        throw new Exception("DATABASE_URL is missing. App cannot start.");
+//    }
+
+//    var uri = new Uri(databaseUrl);
+//    var userInfo = uri.UserInfo.Split(':');
+
+//    var connectionString =
+//        $"Host={uri.Host};" +
+//        $"Port={uri.Port};" +
+//        $"Database={uri.AbsolutePath.TrimStart('/')};" +
+//        $"Username={userInfo[0]};" +
+//        $"Password={userInfo[1]};" +
+//        $"SSL Mode=Require;Trust Server Certificate=true";
+
+//    options.UseNpgsql(connectionString);
+//});
+
+
+var connectionString =
+    Environment.GetEnvironmentVariable("DATABASE_URL")
+    ?? builder.Configuration.GetConnectionString("DefaultConnection");
+
 builder.Services.AddDbContext<AppDbContext>(options =>
-{
-    var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
-
-    if (string.IsNullOrWhiteSpace(databaseUrl))
-    {
-        throw new Exception("DATABASE_URL is missing. App cannot start.");
-    }
-
-    var uri = new Uri(databaseUrl);
-    var userInfo = uri.UserInfo.Split(':');
-
-    var connectionString =
-        $"Host={uri.Host};" +
-        $"Port={uri.Port};" +
-        $"Database={uri.AbsolutePath.TrimStart('/')};" +
-        $"Username={userInfo[0]};" +
-        $"Password={userInfo[1]};" +
-        $"SSL Mode=Require;Trust Server Certificate=true";
-
-    options.UseNpgsql(connectionString);
-});
+    options.UseNpgsql(connectionString));
 
 
 
@@ -175,10 +183,19 @@ async Task SeedRolesAndAdminAsync(IServiceProvider services)
 
 
 // Exécution du seed
+// 1️⃣ Appliquer migrations
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+}
+
+// 2️⃣ Seed rôles + admin
 using (var scope = app.Services.CreateScope())
 {
     await SeedRolesAndAdminAsync(scope.ServiceProvider);
 }
+
 
 // ---------------------
 // PIPELINE HTTP
