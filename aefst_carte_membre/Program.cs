@@ -171,6 +171,14 @@ builder.Services.AddAuthentication(options =>
 });
 
 
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedProto;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
+
+
 
 
 var app = builder.Build();
@@ -269,6 +277,7 @@ app.MapScalarApiReference(options =>
     {
         options.Title = "AEFST – Carte Membre API";
         options.Theme = ScalarTheme.Moon;
+        options.BaseServerUrl = "https://aefstcardsbackend-production.up.railway.app";
     });
 //}
 
