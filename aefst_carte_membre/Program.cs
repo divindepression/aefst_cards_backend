@@ -47,12 +47,40 @@ builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 //});
 
 
-var connectionString =
-    Environment.GetEnvironmentVariable("DATABASE_URL")
-    ?? builder.Configuration.GetConnectionString("DefaultConnection");
+//var connectionString =
+//    Environment.GetEnvironmentVariable("DATABASE_URL")
+//    ?? builder.Configuration.GetConnectionString("DefaultConnection");
+
+//builder.Services.AddDbContext<AppDbContext>(options =>
+//    options.UseNpgsql(connectionString));
+
+
+
+string? databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
+
+string connectionString;
+
+if (!string.IsNullOrEmpty(databaseUrl))
+{
+    var uri = new Uri(databaseUrl);
+    var userInfo = uri.UserInfo.Split(':');
+
+    connectionString =
+        $"Host={uri.Host};" +
+        $"Port={uri.Port};" +
+        $"Database={uri.AbsolutePath.TrimStart('/')};" +
+        $"Username={userInfo[0]};" +
+        $"Password={userInfo[1]};" +
+        $"SSL Mode=Require;Trust Server Certificate=true;";
+}
+else
+{
+    connectionString = builder.Configuration.GetConnectionString("DefaultConnection")!;
+}
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
+
 
 
 
@@ -184,17 +212,34 @@ async Task SeedRolesAndAdminAsync(IServiceProvider services)
 
 // Exécution du seed
 // 1️⃣ Appliquer migrations
+//using (var scope = app.Services.CreateScope())
+//{
+//    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+//    db.Database.Migrate();
+//}
+
+//// 2️⃣ Seed rôles + admin
+//using (var scope = app.Services.CreateScope())
+//{
+//    await SeedRolesAndAdminAsync(scope.ServiceProvider);
+//}
+
+
 using (var scope = app.Services.CreateScope())
 {
-    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    db.Database.Migrate();
+    try
+    {
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        db.Database.Migrate();
+
+        await SeedRolesAndAdminAsync(scope.ServiceProvider);
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine("⚠️ Migration skipped: " + ex.Message);
+    }
 }
 
-// 2️⃣ Seed rôles + admin
-using (var scope = app.Services.CreateScope())
-{
-    await SeedRolesAndAdminAsync(scope.ServiceProvider);
-}
 
 
 // ---------------------
