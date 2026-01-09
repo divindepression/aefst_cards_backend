@@ -12,6 +12,10 @@ using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// ?? OBLIGATOIRE POUR RAILWAY
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+
 // ---------------------
 // DATABASE
 // ---------------------
@@ -68,28 +72,6 @@ builder.Services.ConfigureApplicationCookie(options =>
         return Task.CompletedTask;
     };
 });
-
-
-// ---------------------
-// AUTHENTICATION (JWT)
-// ---------------------
-//builder.Services.AddAuthentication("Bearer")
-//    .AddJwtBearer(options =>
-//    {
-//        options.TokenValidationParameters = new()
-//        {
-//            ValidateIssuer = true,
-//            ValidateAudience = true,
-//            ValidateLifetime = true,
-//            ValidateIssuerSigningKey = true,
-
-//            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-//            ValidAudience = builder.Configuration["Jwt:Audience"],
-//            IssuerSigningKey = new SymmetricSecurityKey(
-//                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!)
-//            )
-//        };
-//    });
 
 builder.Services.AddAuthentication(options =>
 {
@@ -175,8 +157,16 @@ using (var scope = app.Services.CreateScope())
 // ---------------------
 // PIPELINE HTTP
 // ---------------------
-if (app.Environment.IsDevelopment())
-{
+
+
+//app.UseHttpsRedirection();
+app.UseStaticFiles();
+app.UseAuthentication();
+app.UseAuthorization();
+app.MapControllers();
+
+//if (app.Environment.IsDevelopment())
+//{
     app.MapOpenApi();
 
     app.MapScalarApiReference(options =>
@@ -184,12 +174,6 @@ if (app.Environment.IsDevelopment())
         options.Title = "AEFST – Carte Membre API";
         options.Theme = ScalarTheme.Moon;
     });
-}
-
-app.UseHttpsRedirection();
-app.UseStaticFiles();
-app.UseAuthentication();
-app.UseAuthorization();
-app.MapControllers();
+//}
 
 app.Run();
